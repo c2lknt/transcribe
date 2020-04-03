@@ -26,13 +26,14 @@ const Body = styled.div`
   flex-wrap: wrap;
   margin-top: 60vh;
   margin: 60vh auto 0 auto;
-  @media (min-width: 1500px){width: 80%;}
-  @media (max-width: 1500px) and (min-width: 900px){width: 95%;}
-  @media (max-width: 900){width: 98%;}
+  // @media (min-width: 1500px){width: 80%;}
+  // @media (max-width: 1500px) and (min-width: 1000px){width: 95%;}
+  // @media (max-width: 900){width: 98%;}
+  width: 95%;
 `
 const Boxescss = styled.div`
   display: flex;
-  flex-wrap: no-wrap;
+  flex-wrap: nowrap;
   &.hide {
       display: none;
   }
@@ -68,10 +69,32 @@ const breakpointColumnsObj = {
   900: 1,
 };
 
+const normalizeText = t => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
 const scrollToRef = (ref) => ref.current.scrollIntoView({behavior: 'smooth'})
 const content = require('../data/content.json')
 const truncator = t => t.indexOf('<') > -1 ? t.substring(0,t.indexOf('<')) + '...' : t
 const filterFunctions = {
+  textFFunction: (hh, nn, t) => {
+    let returnArray = []
+    let found = true
+    let titleFound = true
+    nn.length > 0 && nn.forEach(n => {
+        const needle = normalizeText(n)
+        const haystack = normalizeText(t)
+        titleFound = ( titleFound && haystack.indexOf(needle) > -1) ? true : false
+    })
+    hh.forEach(h => {
+        if (h.transcription.length > 0 && nn.length > 0 ) { 
+            nn.forEach(n => {
+                const needle = normalizeText(n)
+                const haystack = normalizeText(h.transcription)
+                found = ( haystack.indexOf(needle) > -1) ? true : false
+                if (found || (titleFound )) {returnArray.push(h)}
+            })
+        }
+    }) 
+    return returnArray.length > 0 ? returnArray : false
+  },
   langFFunction: (langArray, langFilter) => {
     langArray = langArray.map(l => l.toLowerCase())
     langFilter = langFilter.toLowerCase()
@@ -105,20 +128,21 @@ const IndexPage = ({ search }) => {
   const [ showButton, setShowButton ] = useState(true)
   const progressData = content['summary']
   const [ resultCount, setResultCount ] = useState(0)
-  const [ showDropdown, setShowDropdown ] = useState(false)
+  const [ showMenu, setShowMenu ] = useState(false)
   const [ itemsToShow, setItemsToShow ] = useState(18)
   const [ filters, setFilters ] = useState({
-    lang: search.lang === undefined ? 'English' : search.lang,
-    cat: search.cat   === undefined ? '' : search.cat,
-    date: search.date === undefined ? 1 : search.date,
-    text: search.text === undefined ? '' : search.text,
+    lang: search.lang !== undefined ? search.lang : 'English',
+    cat: search.cat   !== undefined ? search.cat  : '' ,
+    date: search.date !== undefined ? search.date : 1 ,
+    text: search.text !== undefined ? [search.text] : [] ,
   })
   const filterContent = (content) => {
     const returnArray = content.filter(c => {
+      let textResult = filters.text.length > 0 ? filterFunctions.textFFunction(c.pages, filters.text, c.title) : true
       let langResult = filterFunctions.langFFunction(c.lang, filters.lang)
       let dateResult = filterFunctions.dateFFunction(c.date, filters.date)
       let catResult = filterFunctions.catFFunction(c.category, filters.cat) 
-      let returnValue = langResult && dateResult && catResult
+      let returnValue = (textResult || textResult.length > 0 ) && langResult && dateResult && catResult
       return returnValue
     })
     console.log(returnArray.length)
@@ -128,6 +152,7 @@ const IndexPage = ({ search }) => {
     let counter = 0
     const boxedUpContent = content.map(c => {
       counter++
+        let textSearchResults = filters.text.length > 0 ? filterFunctions.textFFunction(c.pages, filters.text, c.title) : ''
         const boxProps = {
           id: c.id,
           title: c.title,
@@ -140,38 +165,42 @@ const IndexPage = ({ search }) => {
           desc: truncator(c.desc),
           img: c.image.indexOf('default.jpg') > -1 ? c.image.replace('/full/full/0/default.jpg','/square/400,/0/default.jpg') : c.image  + '/full/400,/0/default.jpg',
           show: counter <= itemsToShow,
-        }
+      }
         // return  <Box boxProps={boxProps} key={counter} className={counter <= itemsToShow ? "item" : "item hide"} />
-        return  <Box boxProps={boxProps} key={counter}  >{c.title}</Box>
+        return  <Box boxProps={boxProps} key={counter} filter={filters.text} textSearchResults={textSearchResults} >{c.title}</Box>
     })
     return boxedUpContent
   }
   const addBoxes = () => {
-      setItemsToShow(itemsToShow + 17)
+      setItemsToShow(itemsToShow + 18)
   }
   const updateContent = () => {
-      filteredContent = filterContent(allContent)
-      boxedContent = boxify(filteredContent)
-      setBoxes(boxedContent)
+    filteredContent = filterContent(allContent)
+    boxedContent = boxify(filteredContent)
+    setResultCount(boxedContent.length)
+    setBoxes(boxedContent)
   }
   const firstLoad = useRef(true);
   const executeScroll = () => scrollToRef(pageTop)
   useEffect(() => {
+    console.log(filters)
       setItemsToShow(18)
       updateContent()
       if (firstLoad.current)  {
           firstLoad.current = false
       } else {
-          // executeScroll()
+          executeScroll()
       }
   }, [filters])
   useEffect(() => {
       updateContent()
       setShowButton(boxedContent.length < itemsToShow ? false : true)
   }, [itemsToShow])
+  useEffect(() =>{
+    console.log(showMenu ? 'show' : 'no show')
+  }, [showMenu])
   let filteredContent = filterContent(allContent)
   let boxedContent = boxify(filteredContent)
-  console.log(filters)
   const pageTop = useRef(null)
   const [ boxes, setBoxes ] = useState(boxedContent)
   return (
@@ -184,25 +213,21 @@ const IndexPage = ({ search }) => {
         z-index: 1;
       }
     `}/>
-    <Topbar setShowDropdown={setShowDropdown} showDropdown={showDropdown} resultCount={resultCount} />
+    <Topbar setShowMenu={setShowMenu} showMenu={showMenu} resultCount={resultCount} />
     <Jumbo />
     <Background />
     <Body>
-        separate out a parent component?
-      <Router >
-
-        <IndexPage path="/" />
-        <IndexPage path="/:params" />
-      </Router>
+        {/* separate out a parent component? */}
       <Boxescss>
         <Anchor ref={pageTop} />
-        <Sidebar progressData={progressData} />
+        <Sidebar progressData={progressData} setFilters={setFilters} resultCount={resultCount} showMenu={showMenu} />
         <Masonry
             breakpointCols={breakpointColumnsObj}
             className="masonry-grid"
             columnClassName="masonry-grid_column">
               { boxes.length > 0 ? boxes : <CoreBox nothing>nothing</CoreBox>}
-        </Masonry>
+        </Masonry>  
+
       </Boxescss>
       <Bluebutton>
           <div className="wrapper"><div className={showButton ? 'button' : 'button inactive'} onClick={() => addBoxes()}>More</div></div>
@@ -211,5 +236,15 @@ const IndexPage = ({ search }) => {
     <Footer />
   </Indexcss>
 )}
+
+// const Boxes = props => (
+ 
+//   <Router >
+
+//   <Boxes path="/"  boxes={boxes} />
+//   <Boxes path="/:params" boxes={boxes} />
+//   </Router>
+  
+// )
 
 export default withLocation(IndexPage)

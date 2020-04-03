@@ -1,5 +1,8 @@
 import React, { useState } from 'react'
+import { Link, navigate } from 'gatsby'
 import styled from '@emotion/styled'
+/** @jsx jsx */
+import { jsx, css  } from '@emotion/core'
 import { IoIosSearch } from 'react-icons/io'
 import { fonts, colors, Selectcss } from './csscomponents'
 import { MdCheckBox, MdCheckBoxOutlineBlank } from 'react-icons/md'
@@ -81,32 +84,17 @@ const Subjectcss = styled.div`
         margin-right: 4px;
         margin-bottom: 3px;
     }
-    @media (max-width: 850px) {
-        .subjectlist {display: none;}
-        .subjectdropdown {display: block;}
-    }
-    @media (min-width: 850px) {
-        .subjectlist {display: block;}
-        .subjectdropdown {display: none;}
-    }
-    @media (max-height: 750px) {
-        .subjectlist {display: none;}
-        .subjectdropdown {display: block;}
-    }
-    @media (min-height: 750px) {
-        .subjectlist {display: block;}
-        .subjectdropdown {display: none;}
-    }
 `
 
 export const TextSearch = props => {
     const [input, setInput] = useState('')
     let text = input.length > 0 ? input : 'Search the transcriptions...'
     const handleChange = (e) => {
-        setInput(e.target.value)
+        setInput([e.target.value.toLowerCase()])
     }
     const submitSearch = () => {
         console.log(input)
+        navToNewFilter('text', input, props.setFilters)
     }
     const handleKeyDown = (e) => {
         if(e.keyCode === 13){
@@ -124,7 +112,7 @@ export const LangSearch = props => {
     const languages = ['English','French','German','Italian','Welsh','Yiddish']
     const langdropdown = languages.map((l) => <option key={l} value={l} >{l}</option>)
     return (
-        <Selectcss name="dropdownlanguages" className="dropdown" >
+        <Selectcss name="dropdownlanguages" className="dropdown" onChange={e => navToNewFilter('lang', e.target.value, props.setFilters)}>
             <option value="English">Select a language...</option>
             {langdropdown}
         </Selectcss>
@@ -137,7 +125,7 @@ export const DateSearch = props => {
         decades.push( i === 1960 || i === 1970 ? '' : <option key={i} value={i} >{i} - {i + 9}</option>)
     }
     return (
-        <Selectcss id="dropdowndecade" className="dropdown" name="dropdowndecade" defaultValue={1} >
+        <Selectcss id="dropdowndecade" className="dropdown" name="dropdowndecade" defaultValue={1} onChange={e => navToNewFilter('date', e.target.value, props.setFilters)}> >
             <option value={1}>Select a decade...</option>
             <option key="early" value="1799" >pre-1800</option>
             {decades}
@@ -162,7 +150,8 @@ export const SubjSearch = props => {
         // "Edward E. Ayer Manuscript Collection",
     ]
     const subjectList = subjectArray.sort().map((s, index) => {
-        return <li key={index}>
+        let link = '/' + insertParam('cat', s)
+        return <li key={index} onClick={() => navToNewFilter('cat', s, props.setFilters)}>
             {checked ? <MdCheckBox className="icon" /> : <MdCheckBoxOutlineBlank className="icon" />}
             {
                 s === 'American Civil War (1861-1865)' ? 'Civil War' : 
@@ -182,8 +171,9 @@ export const SubjSearch = props => {
         }
         </option>
     )
+    let dropOrList = props.showMenu ? css`.subjectlist {display: none;} .subjectdropdown {display: block;}` : css`@media (max-width: 850px) { .subjectlist {display: none;} .subjectdropdown {display: block;}}@media (min-width: 850px) { .subjectlist {display: block;} .subjectdropdown {display: none;}}@media (max-height: 750px) { .subjectlist {display: none;} .subjectdropdown {display: block;}}@media (min-height: 750px) { .subjectlist {display: block;} .subjectdropdown {display: none;}}`
     return (
-        <Subjectcss>
+        <Subjectcss css={dropOrList}>
             <div className="subjectlist">
                 <span>Select a category...</span>
                 <ul>
@@ -192,11 +182,55 @@ export const SubjSearch = props => {
                 </ul>
             </div>
             <div className="subjectdropdown">
-                <Selectcss id="dropdownsubj" className="dropdown" name="dropdownsubj" defaultValue={''} >
+                <Selectcss id="dropdownsubj" className="dropdown" name="dropdownsubj" defaultValue={''} onChange={e => navToNewFilter('cat', e.target.value, props.setFilters)}>
                     <option value={''}>Select a subject...</option>
                     {subjectDropdown}
                 </Selectcss>
             </div>
         </Subjectcss>
+    )
+}
+
+
+function insertParam(key, value) {
+    key = escape(key); value = escape(value);
+    let newUrl 
+    var kvp = document.location.search.substr(1).split('&');
+    if (kvp == '') {
+        newUrl = '?' + key + '=' + value;
+    }
+    else {
+
+        var i = kvp.length; var x; while (i--) {
+            x = kvp[i].split('=');
+
+            if (x[0] == key) {
+                x[1] = value;
+                kvp[i] = x.join('=');
+                break;
+            }
+        }
+
+        if (i < 0) { kvp[kvp.length] = [key, value].join('='); }
+        newUrl = '?'  + kvp.join('&')
+        
+        //this will reload the page, it's likely better to store this until finished
+        // document.location.search = kvp.join('&');
+    }
+    return newUrl
+}
+
+const navToNewFilter = (key, value, setFilters) => {
+    let newUrl = insertParam(key, value) 
+    let newObj = { [key]: value }
+    console.log(newObj)
+    setFilters(prevState => {
+        return { ...prevState, [key]: value }
+    })
+    navigate(
+        newUrl, 
+        {
+            state: { newUrl },
+        }
     )
 }

@@ -92,8 +92,10 @@ const Topbarcss = styled.div`
 `
 
 const Topbar = props => {
-    const dropDowner = () => {
-        props.setShowDropdown(!props.showDropdown)
+    const dropDowner = (e) => {
+        e.preventDefault();
+        console.log(props.showMenu ? 'shosohsso' : 'nononono')
+        props.setShowMenu(!props.showMenu)
     }
     const curtainText = [['Digital Newberry: ', 'http://www.google.com','dislink'],['Newberry Transcribe', '/','homelink']]
     const breadcrumbs = curtainText.map(ct => {
@@ -152,8 +154,8 @@ const Topbar = props => {
             <div className="topbar">
                 <div className="nlogo"><a href="https://www.newberry.org/" target="_blank" rel="noopener noreferrer"><img src={logo} alt=""/></a></div>
                 <div className="titletext"><span className="blurone">{breadcrumbs}</span></div>
-                <div className="menu" onClick={() => dropDowner()} onKeyUp={() => dropDowner()} role="button" tabIndex={0}>
-                    {props.showDropdown ? <IoIosCloseCircle size="1.5rem" className="carrot" /> : <IoIosArrowDropdownCircle size="1.5rem" className="carrot" />}
+                <div className="menu" onClick={e => dropDowner(e)} onKeyUp={(e) => dropDowner(e)} role="button" tabIndex={0}>
+                    {props.showMenu ? <IoIosCloseCircle size="1.5rem" className="carrot" /> : <IoIosArrowDropdownCircle size="1.5rem" className="carrot" />}
                 </div>
                 <div className="jumbler"></div>
             </div>
