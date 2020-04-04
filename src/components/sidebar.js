@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+// import React, { useState } from 'react'
 import { navigate } from 'gatsby'
 import styled from '@emotion/styled'
 /** @jsx jsx */
@@ -7,56 +7,6 @@ import { fonts, colors, Bluebutton, CoreBox } from './csscomponents'
 import Progress from './progress'
 import { TextSearch, DateSearch, LangSearch, SubjSearch } from './searchcomponents'
 import { numberWithCommas } from './progress'
-
-const Dropdowncss = styled.div`
-    @media only screen and (min-width: 850px){
-        display: none;
-    }
-    position: fixed;
-    top: 50px;
-    left: 50px;
-    right: 50px;
-    z-index: 1000;
-    padding: 0 10px 5px 10px;
-    background: rgba(${colors.bg},1);
-    border: 1px solid rgba(${colors.fg},1);
-    color: rgba(${colors.fg},1);
-    box-shadow: inset 0 0 8px rgba(${colors.fg},1);
-    .dropdowns {
-        display: flex;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        > * {
-            min-width: 150px;
-            // flex-basis: 150px;
-            flex: 1;
-        }
-        select {
-            
-            margin-top: 0;
-        }
-    }
-    .count {
-        font-family: ${fonts.serif};
-        text-align: center;
-        display: block;
-        width: 100%;
-    }
-`
-const dropdowncss = css`
-
-    @media only screen and (min-width: 850px){
-        display: none;
-    }   
-    position: fixed;
-    top: 50px;
-    left: 50px;
-    right: 50px;
-    z-index: 1000;
-`
-const sidebarcss = css`
-    
-`
 // let SidebarCss = styled('div')`${dynamicStyle}` 
 const Sidebar = props => {
     let showHideMenu = props.showMenu ? 'block' : 'none'
@@ -115,7 +65,7 @@ const Sidebar = props => {
     )
 }
 
-const resetFilters = (e, setFilters) => {
+export const resetFilters = (e, setFilters) => {
     e.preventDefault()
     setFilters({
         lang: 'English',

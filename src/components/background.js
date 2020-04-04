@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 /** @jsx jsx */
 import { jsx, css  } from '@emotion/core'
 
@@ -31,11 +31,16 @@ export const bgarray = [
     ['nby_VO1422','0']
 ]
 
-const Background = () => {
+const Background = props => {
+    let bgLink;
     const [rando, setRando ] = useState(Math.round(Math.random() * (bgarray.length - 1)))
-    // const rando = Math.round(Math.random() * (bgarray.length - 1));
-    const bodybg = bgarray[rando]
-    const bgLink = bodybg[0] + `$` + bodybg[1]
+    if (props.image){
+        bgLink = props.image
+    } else {
+        // const rando = Math.round(Math.random() * (bgarray.length - 1));
+        const bodybg = bgarray[rando]
+        bgLink = '//iiif.archivelab.org/iiif/' + bodybg[0] + `$` + bodybg[1] + '/full/1000,/0/default.jpg'
+    }
     return(
         <div css={css`
         z-index: -9990;
@@ -44,7 +49,7 @@ const Background = () => {
         right: 0;
         bottom: 0;
         left: 0;
-        background: url('//iiif.archivelab.org/iiif/${bgLink}/full/1000,/0/default.jpg');
+        background: url('${bgLink}');
         background-size: cover;
         background-position: 50% 50%;
         overflow: hidden;

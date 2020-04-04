@@ -1,6 +1,11 @@
 import React, { useState } from 'react'
-import { Link } from 'gatsby'
+import Masonry from 'react-masonry-css'
 import { Gardacss, Contentcss, Closebutton, Modal, CoreBox } from './csscomponents'
+  
+const breakpointColumnsObj = {
+    default: 2,
+    900: 1
+};
 
   
 const Footer = () => {
@@ -14,16 +19,18 @@ const Footer = () => {
     }
     return (
         <Gardacss >
-            <div className="footerwrapper">
-                <div className="textycontent">
-                    <CoreBox className="contact">
+                <Masonry
+                    breakpointCols={breakpointColumnsObj}
+                    className="masonry-grid"
+                    columnClassName="masonry-grid_column">
+                    <CoreBox className="footercontent contact">
                         <h3>Questions? Comments?</h3>
                         <p>Contact the Newberry’s Digital Initiatives and Services staff: <a href="https://twitter.com/digitalnewberry">@DigitalNewberry</a> or <a href="mailto:dis@newberry.org?Subject=Newberry%20Transcribe">dis@newberry.org</a></p>
                         <h3>About this project</h3>
                         <p>Newberry Transcribe lets you contribute to historical scholarship, while learning about the everyday lives of individuals from a wide variety of backgrounds in the 19th and early 20th centuries. </p>
                         <p>By transcribing handwritten letters, diaries, and other materials from the Newberry's Modern Manuscript Collections, you're helping to preserve these voices from the past -- making their stories easier to find, search, and read.  <a to={'about'}>More information.</a></p>
                     </CoreBox>
-                    <CoreBox className="license">
+                    <CoreBox className="footercontent license">
                         <h3>Guidelines</h3>
                         <p>Unsure how to get started? <span className="notlink" onClick={e => toggleSection('gettingStarted', e)}>Click here!</span></p>
                         <p>New to transcribing?  <span className="notlink" onClick={e => toggleSection('tips', e)}>Click here</span> for some tips that will help you transcribe more effectively. </p>
@@ -34,9 +41,24 @@ const Footer = () => {
                             Except where otherwise noted, contextual content on this site is made available under a <a href="https://creativecommons.org/share-your-work/public-domain/cc0/">Creative Commons Public Domain license</a>.  Digitized images and other media from the Newberry's collections are made available for any lawful purpose, commercial or non-commercial, without licensing or permission fees to the library, subject to the following terms and conditions: <a href="https://www.newberry.org/rights-and-reproductions">Newberry Rights and Reproductions Policy.</a>  The transcription data is available in json format <a to={'data/items.json'}>here.</a> 
                         </p>
                     </CoreBox>
-                    
-                </div>
-            </div>
+                    <CoreBox className="footercontent">
+                        <a href="https://publications.newberry.org/postcard-sender/" className="imagelink" target="_blank" rel="noopener noreferrer">
+                            <img src={require(`../images/postcardsender.png`)} />
+                        </a>
+                        <a href="https://publications.newberry.org/postcard-sender/" target="_blank" rel="noopener noreferrer" ><h3>Send a postcard!</h3></a>
+                        <p>Inspired after transcribing correspondence? Write a message to a friend with our Postcard Sender! </p>
+                        <p>Choose from a selection or browse 26,000+ items at the Newberry Postcards digital collection and click the Sender link below any image.</p>
+
+                    </CoreBox>
+                    <CoreBox className="footercontent timemachine">
+                        <a href="https://publications.newberry.org/time-machine/" className="imagelink" target="_blank" rel="noopener noreferrer">
+                            <img src={require(`../images/timemachine.png`)} />
+                        </a>
+                        <a href="https://publications.newberry.org/time-machine/" target="_blank" rel="noopener noreferrer"><h3>Midwest Time Machine</h3></a>
+                        
+                        <p>Travel to the past with highlights from our favorite letters and diaries -- transcribed by users like you!</p>
+                    </CoreBox>
+                </Masonry>
         </Gardacss>
     )
 }
@@ -93,5 +115,4 @@ const Tips = ({ settips }) => (
         </dl>
     </Contentcss>
 )
-
 export default Footer

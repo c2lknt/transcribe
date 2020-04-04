@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { Link, navigate } from 'gatsby'
+import { useState } from 'react'
+import { navigate } from 'gatsby'
 import styled from '@emotion/styled'
 /** @jsx jsx */
 import { jsx, css  } from '@emotion/core'
@@ -150,7 +150,6 @@ export const SubjSearch = props => {
         // "Edward E. Ayer Manuscript Collection",
     ]
     const subjectList = subjectArray.sort().map((s, index) => {
-        let link = '/' + insertParam('cat', s)
         return <li key={index} onClick={() => navToNewFilter('cat', s, props.setFilters)}>
             {checked ? <MdCheckBox className="icon" /> : <MdCheckBoxOutlineBlank className="icon" />}
             {
@@ -178,7 +177,6 @@ export const SubjSearch = props => {
                 <span>Select a category...</span>
                 <ul>
                     {subjectList}
-                <li className="viewall" title="Reset Subject Filter">View All Items</li>
                 </ul>
             </div>
             <div className="subjectdropdown">
@@ -192,11 +190,11 @@ export const SubjSearch = props => {
 }
 
 
-function insertParam(key, value) {
+export function insertParam(key, value) {
     key = escape(key); value = escape(value);
     let newUrl 
     var kvp = document.location.search.substr(1).split('&');
-    if (kvp == '') {
+    if (kvp === '') {
         newUrl = '?' + key + '=' + value;
     }
     else {
@@ -204,7 +202,7 @@ function insertParam(key, value) {
         var i = kvp.length; var x; while (i--) {
             x = kvp[i].split('=');
 
-            if (x[0] == key) {
+            if (x[0] === key) {
                 x[1] = value;
                 kvp[i] = x.join('=');
                 break;

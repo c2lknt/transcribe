@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react"
 import styled from '@emotion/styled'
 import { Global, css } from "@emotion/core"
 import Masonry from 'react-masonry-css'
-import { Router } from "@reach/router"
+// import { Router } from "@reach/router"
 import { Bluebutton, CoreBox } from '../components/csscomponents'
 import withLocation from '../components/withlocation'
 import Topbar from '../components/topbar'
@@ -11,6 +11,7 @@ import Background from '../components/background'
 import Sidebar from '../components/sidebar'
 import Footer from "../components/footer"
 import Box from '../components/box'
+import BetaBanner from '../components/beta'
 
 const Indexcss = styled.div`
   position: relative;
@@ -30,6 +31,7 @@ const Body = styled.div`
   // @media (max-width: 1500px) and (min-width: 1000px){width: 95%;}
   // @media (max-width: 900){width: 98%;}
   width: 95%;
+
 `
 const Boxescss = styled.div`
   display: flex;
@@ -43,17 +45,17 @@ const Boxescss = styled.div`
   }
   .masonry-grid {
     flex: 1;
-      display: flex;
-      margin-left: -30px; /* gutter size offset */
-      width: auto;
-    }
-    .masonry-grid_column {
-      padding-left: 30px; /* gutter size */
-      background-clip: padding-box;
-    }
-    .masonry-grid_column > div { /* change div to reference your elements you put in <Masonry> */
-      margin-bottom: 30px;
-    }
+    display: flex;
+    margin-left: -30px; /* gutter size offset */
+    width: auto;
+  }
+  .masonry-grid_column {
+    padding-left: 30px; /* gutter size */
+    background-clip: padding-box;
+  }
+  .masonry-grid_column > div { /* change div to reference your elements you put in <Masonry> */
+    margin-bottom: 30px;
+  }
 `
 const Anchor = styled.div`
     position: absolute;
@@ -63,7 +65,7 @@ const Anchor = styled.div`
     background: black;
     opacity: 0;
 `
-const breakpointColumnsObj = {
+export const breakpointColumnsObj = {
   default: 3,
   1300: 2,
   900: 1,
@@ -145,12 +147,13 @@ const IndexPage = ({ search }) => {
       let returnValue = (textResult || textResult.length > 0 ) && langResult && dateResult && catResult
       return returnValue
     })
-    console.log(returnArray.length)
+    
     return returnArray
   }
   const boxify = content => {
     let counter = 0
-    const boxedUpContent = content.map(c => {
+    if (content.length === 0 ) return <CoreBox nothing>No results.</CoreBox>
+    let boxedUpContent = content.map(c => {
       counter++
         let textSearchResults = filters.text.length > 0 ? filterFunctions.textFFunction(c.pages, filters.text, c.title) : ''
         const boxProps = {
@@ -169,10 +172,11 @@ const IndexPage = ({ search }) => {
         // return  <Box boxProps={boxProps} key={counter} className={counter <= itemsToShow ? "item" : "item hide"} />
         return  <Box boxProps={boxProps} key={counter} filter={filters.text} textSearchResults={textSearchResults} >{c.title}</Box>
     })
+    // boxedUpContent = boxedUpContent.length === 1 ? boxedUpContent.push(<div></div>) : boxedUpContent
     return boxedUpContent
   }
   const addBoxes = () => {
-      setItemsToShow(itemsToShow + 18)
+      setItemsToShow(itemsToShow + 18) 
   }
   const updateContent = () => {
     filteredContent = filterContent(allContent)
@@ -183,7 +187,6 @@ const IndexPage = ({ search }) => {
   const firstLoad = useRef(true);
   const executeScroll = () => scrollToRef(pageTop)
   useEffect(() => {
-    console.log(filters)
       setItemsToShow(18)
       updateContent()
       if (firstLoad.current)  {
@@ -199,6 +202,7 @@ const IndexPage = ({ search }) => {
   useEffect(() =>{
     console.log(showMenu ? 'show' : 'no show')
   }, [showMenu])
+  
   let filteredContent = filterContent(allContent)
   let boxedContent = boxify(filteredContent)
   const pageTop = useRef(null)
@@ -215,19 +219,20 @@ const IndexPage = ({ search }) => {
     `}/>
     <Topbar setShowMenu={setShowMenu} showMenu={showMenu} resultCount={resultCount} />
     <Jumbo />
+    <BetaBanner />
     <Background />
     <Body>
-        {/* separate out a parent component? */}
       <Boxescss>
         <Anchor ref={pageTop} />
         <Sidebar progressData={progressData} setFilters={setFilters} resultCount={resultCount} showMenu={showMenu} />
-        <Masonry
+        {boxes.length === 1 ? boxes : 
+          <Masonry
             breakpointCols={breakpointColumnsObj}
             className="masonry-grid"
             columnClassName="masonry-grid_column">
-              { boxes.length > 0 ? boxes : <CoreBox nothing>nothing</CoreBox>}
-        </Masonry>  
-
+              {boxes}
+          </Masonry>  
+        }
       </Boxescss>
       <Bluebutton>
           <div className="wrapper"><div className={showButton ? 'button' : 'button inactive'} onClick={() => addBoxes()}>More</div></div>

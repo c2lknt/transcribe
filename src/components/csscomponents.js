@@ -15,7 +15,8 @@ export const CoreBox = styled.div`
     background: rgba(${colors.bg}, 1);
     border: 2px solid rgba(${colors.hl}, 1);
     box-shadow: inset 0 0 10px rgba(${colors.fg},0.5);
-    ${props => props.nothing ? 'padding:  20px; text-align: center;' : ';'}
+    ${props => props.nothing ? 'width: 400px; height: 150px; padding: 25px; margin: auto; text-align: center;' :''}
+}
 
 
 `
@@ -125,31 +126,16 @@ export const Selectcss = styled.select`
     width: 100%;
 `
 export const Gardacss = styled.footer`
+    padding: 15px;
     width: 90%;
     margin: auto;
-    padding: 15px;
-    .footerwrapper {
-        position: relative;
-        width: 80%;
-        margin: auto;
-        z-index: 0;
-        color: rgba(${colors.fg},1);
-     
-        .textycontent {
-            display: flex;
-            flex-wrap: wrap;
-            padding: 0 15px;
-            justify-content: space-between;
-            .contact, .license {
-                padding: 25px;
-                margin: 15px;
-                flex: 1;
-                min-width: 300px;
-            }
-            
-            }
-        } 
-    }
+    color: rgba(${colors.fg},1);
+    display: flex;
+    flex-wrap: wrap;
+    .footercontent {
+        padding: 25px;
+        // max-width: 300px;
+    } 
     h3 {
         font-family: ${fonts.serif};
     }
@@ -171,6 +157,28 @@ export const Gardacss = styled.footer`
             background-size: 100% 3px;
         }
         cursor: pointer;
+    }
+    .imagelink {
+
+            background: none;
+        img {
+            margin:  0 auto 20px auto;
+            box-shadow:  0 0 8px rgba(${colors.fg},1);
+        }
+    }
+    .masonry-grid {
+        flex: 1;
+        display: flex;
+        margin-left: -30px; /* gutter size offset */
+        width: auto;
+    }
+    .masonry-grid_column {
+        padding-left: 30px; /* gutter size */
+        background-clip: padding-box;
+        min-width: 400px;
+    }
+    .masonry-grid_column > div { /* change div to reference your elements you put in <Masonry> */
+        margin: 0 auto 30px auto;
     }
 `
 export const Contentcss = styled.div`

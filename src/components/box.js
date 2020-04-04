@@ -3,6 +3,7 @@ import styled from '@emotion/styled'
 import Highlighter from 'react-highlight-words'
 // import { Link } from 'gatsby';
 import { colors, fonts } from '../components/csscomponents'
+import { insertParam } from '../components/searchcomponents'
 import Progress from '../components/progress'
 
 const Boxcss = styled.div`
@@ -11,10 +12,13 @@ const Boxcss = styled.div`
     box-shadow: inset 0 0 10px rgba(${colors.hl},0.5);
     position: relative;
     display: ${props => props.show ? 'block' : 'none'};
+    overflow: hidden;
     img {
         margin: 0;
         padding: 0;
         width: 100%;
+
+        box-shadow:  0 0 8px rgba(${colors.fg},1);
     }
     .text {
         padding: 0 15px 15px 15px;
@@ -63,6 +67,12 @@ const Boxcss = styled.div`
                 text-decoration: none;
                 line-height: 15px;
                 height: 15px;
+                &:link, &:visited {
+                    color: rgba(${colors.hl},1);
+                }
+                &:hover, &:active {
+                    color: rgba(${colors.hl},0.75);
+                }
             }
             border-right: 1px solid rgba(${colors.hl},1);
             background-image: linear-gradient(transparent 1px, rgba(${colors.hl},1) 1px);
@@ -205,7 +215,7 @@ const TextSearchResults = ({ tsr, id, filter }) => {
     const results = tsr.map((t, i) => {
         // console.log(t)
         if (t.transcription.length > 0) {
-            return <Textbox key={id + '-' + i} key={tsr.pageid} id={id} activePage={activePage} pageSwitch={pageSwitch} total={tsr.length} filter={filter} searchresult={t} index={i} />
+            return <Textbox key={tsr.pageid} id={id} activePage={activePage} pageSwitch={pageSwitch} total={tsr.length} filter={filter} searchresult={t} index={i} />
         } else {
             return true
         }
@@ -217,17 +227,25 @@ const TextSearchResults = ({ tsr, id, filter }) => {
     )
 }
 const Box = ({ boxProps, textSearchResults, filter }) => {
-    const cats = boxProps.category.indexOf(';') > -1 ? boxProps.category.split(';').map((i) => {
+    // let catLink = insertParam('cat', boxProps.category)
+    // const cats = boxProps.category.indexOf(';') > -1 ? boxProps.category.split(';').map((i) => {
+    //     i = i.trim()
+    //     catLink = insertParam('cat', i)
+    //     i = i === 'American Civil War (1861-1865)' ? 'Civil War' : i === 'Letters (Correspondence)' ? 'Letters' : i === 'Records (Documents)' ? 'Records' : i
+    //     return <span key={i}><a href={catLink}>{i}</a></span>
+    // }) : <span ><a href={catLink}>{boxProps.category}</a></span>
+    const cats = boxProps.category.split(';').map((i) => {
         i = i.trim()
+        let catLink = insertParam('cat', i)
         i = i === 'American Civil War (1861-1865)' ? 'Civil War' : i === 'Letters (Correspondence)' ? 'Letters' : i === 'Records (Documents)' ? 'Records' : i
-        return <span key={i}><a href="gogol.com">{i}</a></span>
-    }) : <span ><a href="gogol.com">{boxProps.category}</a></span>
+        return <span key={i}><a href={catLink}>{i}</a></span>
+    }) 
     const title = boxProps.title.length > 100 ? boxProps.title.substring(0,100) + '...' : boxProps.title
     
     const img = boxProps.img.indexOf('default.jpg') > -1 ? boxProps.img.replace('/full/full/0/default.jpg','/square/400,/0/default.jpg') : boxProps.img  + '/full/400,/0/default.jpg'
     return (
-        <Boxcss show={boxProps.show}>
-            <div className="image"><img src={img} alt={title}/></div>
+        <Boxcss show={boxProps.show} >
+            <div className="image"><a href={'/item/' + boxProps.id}><img src={img} alt={title}/></a></div>
             <div className="text">
                 { boxProps.category.length > 0 ? <div className="cats">{cats}</div> : ''}
                 <div className="title">
